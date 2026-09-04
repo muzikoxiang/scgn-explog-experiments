@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.idea/
+.DS_Store
+*.pth
+*.pt
+*.zip
+tem_data4/
+tem_test_data4/
+*_result/
+
