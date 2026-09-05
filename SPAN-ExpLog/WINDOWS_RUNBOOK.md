@@ -2,9 +2,10 @@
 
 ## 状态
 
-`prepared` / `mac-smoke-tested` / **not yet windows-verified**
+`prepared` / `mac-smoke-tested` / `windows-smoke-verified`
 
-本目录基于 SPAN 官方仓库的 `c77a591` 准备。现阶段的数值不得标记为 Windows/CUDA 复现结果。
+本目录基于 SPAN 官方仓库的 `c77a591` 准备。A--F 六组已完成
+Windows/CUDA 1000 iter 冒烟验证，但还不是完整训练或官方指标复现。
 
 ## 1. 拷贝与环境
 
@@ -70,5 +71,16 @@ conda run -n span-explog pip install -e .
 
 ## 6. 当前执行顺序
 
-A 与 D 已通过 1000 iter 冒烟训练。下一步先跑 B，再跑 C，以判断 D
-的早期提升来自 ExpLog、GN，还是单纯增加参数/计算量。B/C 完成前暂缓 E/F。
+A--F 六组 1000 iter 冒烟训练已全部完成：
+
+| 组别 | PSNR | SSIM | 总耗时 |
+|---|---:|---:|---:|
+| A baseline | 27.2765 | 0.7294 | 16:02 |
+| B GN | 27.7591 | 0.7499 | 19:40 |
+| C matched Conv | 27.5982 | **0.7612** | 17:20 |
+| D ExpLog block 3 | **28.0479** | 0.7581 | 20:40 |
+| E ExpLog block 2/4/6 | 27.0701 | 0.7223 | 19:04 |
+| F ExpLog all blocks | 27.6457 | 0.7515 | 19:54 |
+
+下一轮不直接跳到 500k，先跑 A、C、D 各 10,000 iter，顺序为
+`A -> C -> D`。算力允许时再加 B。E/F 作为插入数量消融保留，暂不长训。

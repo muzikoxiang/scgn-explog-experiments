@@ -49,10 +49,11 @@ GN and parameter-matched convolution controls.
 Current status (2026-09-05):
 
 - six variants pass Mac CPU forward/backward, finite-value, and gradient smoke tests;
-- Windows A-baseline and D-single-ExpLog 1,000-iteration smoke training passed;
-- A reached 27.2765/0.7294 and D reached 28.0479/0.7581 on DIV2K100;
-- B GN and C parameter-matched Conv controls are the next experiments;
+- all six Windows 1,000-iteration smoke experiments passed;
+- D (single ExpLog at block 3) has the best PSNR: 28.0479;
+- C (parameter-matched Conv) has the best SSIM: 0.7612;
+- A, C, and D are selected for the next 10,000-iteration screening round;
 - official pretrained-checkpoint reproduction and full training remain pending;
-- the new package is intentionally uncommitted until it has been run on the Windows machine.
+- Windows-validated progress is tracked in Git; datasets, checkpoints, and logs remain local.
 
 See `SPAN-ExpLog/EXPERIMENT_STATUS.md` and `SPAN-ExpLog/WINDOWS_RUNBOOK.md`.
