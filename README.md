@@ -40,3 +40,19 @@ historical directory names if checkpoint compatibility is required.
 This is a research reconstruction, not an official SCGN release. Some early variant
 source files were missing, so inferred implementations are labeled explicitly.
 
+## Current follow-up: SPAN-ExpLog
+
+The next-stage lightweight super-resolution experiment is prepared in
+`SPAN-ExpLog/`. It transfers the best residual ExpLog idea to SPAN and includes
+GN and parameter-matched convolution controls.
+
+Current status (2026-09-05):
+
+- six variants pass Mac CPU forward/backward, finite-value, and gradient smoke tests;
+- Windows A-baseline and D-single-ExpLog 1,000-iteration smoke training passed;
+- A reached 27.2765/0.7294 and D reached 28.0479/0.7581 on DIV2K100;
+- B GN and C parameter-matched Conv controls are the next experiments;
+- official pretrained-checkpoint reproduction and full training remain pending;
+- the new package is intentionally uncommitted until it has been run on the Windows machine.
+
+See `SPAN-ExpLog/EXPERIMENT_STATUS.md` and `SPAN-ExpLog/WINDOWS_RUNBOOK.md`.

@@ -1,0 +1,62 @@
+name: SPAN_x4_official_baseline
+model_type: SRModel
+scale: 4
+num_gpu: 1
+manual_seed: 10
+datasets:
+  test_1:
+    name: Set5
+    type: PairedImageDataset
+    dataroot_gt: D:/datasets/SR/Set5/GTmod12
+    dataroot_lq: D:/datasets/SR/Set5/LRbicx4
+    io_backend:
+      type: disk
+  test_2:
+    name: Set14
+    type: PairedImageDataset
+    dataroot_gt: D:/datasets/SR/Set14/GTmod12
+    dataroot_lq: D:/datasets/SR/Set14/LRbicx4
+    io_backend:
+      type: disk
+  test_3:
+    name: B100
+    type: PairedImageDataset
+    dataroot_gt: D:/datasets/SR/B100/GTmod12
+    dataroot_lq: D:/datasets/SR/B100/LRbicx4
+    io_backend:
+      type: disk
+  test_4:
+    name: Urban100
+    type: PairedImageDataset
+    dataroot_gt: D:/datasets/SR/Urban100/GTmod12
+    dataroot_lq: D:/datasets/SR/Urban100/LRbicx4
+    io_backend:
+      type: disk
+  test_5:
+    name: Manga109
+    type: PairedImageDataset
+    dataroot_gt: D:/datasets/SR/Manga109/GTmod12
+    dataroot_lq: D:/datasets/SR/Manga109/LRbicx4
+    io_backend:
+      type: disk
+network_g:
+  type: SPAN
+  num_in_ch: 3
+  num_out_ch: 3
+  feature_channels: 48
+  upscale: 4
+path:
+  pretrain_network_g: D:/models/SPAN/SPAN_x4.pth
+  strict_load_g: true
+val:
+  save_img: true
+  suffix: null
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true

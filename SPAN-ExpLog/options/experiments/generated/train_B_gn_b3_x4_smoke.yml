@@ -1,0 +1,90 @@
+name: smoke_B_gn_b3_x4
+model_type: SRModel
+scale: 4
+num_gpu: 1
+manual_seed: 10
+datasets:
+  train:
+    name: DIV2K
+    type: PairedImageDataset
+    dataroot_gt: D:/datasets/DIV2K/DIV2K_train_HR
+    dataroot_lq: D:/datasets/DIV2K/DIV2K_train_LR_bicubic/X4
+    filename_tmpl: '{}x4'
+    io_backend:
+      type: disk
+    gt_size: 256
+    use_hflip: true
+    use_rot: true
+    use_shuffle: true
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 16
+    dataset_enlarge_ratio: 100
+    prefetch_mode: cpu
+  val:
+    name: DIV2K100
+    type: PairedImageDataset
+    dataroot_gt: D:/datasets/DIV2K/DIV2K_valid_HR
+    dataroot_lq: D:/datasets/DIV2K/DIV2K_valid_LR_bicubic/X4
+    filename_tmpl: '{}x4'
+    io_backend:
+      type: disk
+network_g:
+  type: SPANExpLog
+  num_in_ch: 3
+  num_out_ch: 3
+  feature_channels: 48
+  upscale: 4
+  enhance_blocks:
+  - 3
+  enhancer: gn
+  explog_groups: 4
+  explog_alpha: 0.1
+path:
+  pretrain_network_g: null
+  strict_load_g: false
+  resume_state: null
+train:
+  ema_decay: 0
+  optim_g:
+    type: Adam
+    lr: 0.0005
+    weight_decay: 0
+    betas:
+    - 0.9
+    - 0.99
+  scheduler:
+    type: MultiStepRestartLR
+    milestones:
+    - 250000
+    - 400000
+    - 450000
+    - 475000
+    gamma: 0.5
+  total_iter: 1000
+  warmup_iter: -1
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+val:
+  val_freq: 500
+  save_img: false
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true
+logger:
+  print_freq: 100
+  save_checkpoint_freq: 500
+  use_tb_logger: true
+  wandb:
+    project: null
+    resume_id: null
+dist_params:
+  backend: nccl
+  port: 29500
