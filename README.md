@@ -52,7 +52,8 @@ Current status (2026-09-05):
 - all six Windows 1,000-iteration smoke experiments passed;
 - D (single ExpLog at block 3) has the best PSNR: 28.0479;
 - C (parameter-matched Conv) has the best SSIM: 0.7612;
-- A, C, and D are selected for the next 10,000-iteration screening round;
+- A/C/D 10k seed-10 screening and D learning-rate ablation are complete;
+- D at 3.5e-4 reached 29.7528/0.8214; multi-seed validation is next;
 - official pretrained-checkpoint reproduction and full training remain pending;
 - Windows-validated progress is tracked in Git; datasets, checkpoints, and logs remain local.
 

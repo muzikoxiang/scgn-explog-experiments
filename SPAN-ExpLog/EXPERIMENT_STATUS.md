@@ -1,6 +1,6 @@
 # Experiment status
 
-Last synchronized: 2026-09-05 (Asia/Shanghai)
+Last synchronized: 2026-09-06 (Asia/Shanghai)
 
 | Item | Status | Evidence |
 |---|---|---|
@@ -11,7 +11,9 @@ Last synchronized: 2026-09-05 (Asia/Shanghai)
 | Windows CUDA pipeline | smoke-tested | A--F completed training, validation, save and reload |
 | Official baseline reproduced | pending | needs datasets and checkpoint |
 | 1,000-iteration ablations | complete | all A--F smoke runs finished |
-| 10,000-iteration screening | pending | selected groups: A, C, D |
+| 10,000-iteration screening | complete | A, C, and D completed on seed 10 |
+| ExpLog learning-rate ablation | complete | 5e-4, 2.5e-4, and 3.5e-4 completed |
+| Multi-seed validation | in progress | seed 10 complete; seeds 20 and 30 pending |
 | Full training | pending | run only after 10k screening |
 
 Do not report prepared or smoke-tested rows as experimental results.
@@ -59,7 +61,30 @@ configs now force `ema_decay: 0`; restore 0.999 only for full training.
 - F: ExpLog at all six SPABs
 
 The generated configurations use x4 super-resolution and 1,000-iteration smoke
-training. All six have now passed on Windows. The next screening round should
-run A, C, and D for 10,000 iterations before committing to full training; add B
-only if compute permits. E and F remain useful insertion-count ablations but do
-not need immediate long runs.
+training. All six have now passed on Windows. E and F remain useful
+insertion-count ablations but do not need immediate long runs.
+
+## 10,000-iteration screening and LR ablation (seed 10)
+
+| Experiment | LR | 10k PSNR | 10k SSIM | Best PSNR |
+|---|---:|---:|---:|---:|
+| A SPAN baseline | 5e-4 | 29.1695 | 0.8214 | 29.6280 @ 8k |
+| C matched Conv | 5e-4 | 29.6596 | **0.8220** | 29.7372 @ 8k |
+| D ExpLog SPAB 3 | 5e-4 | 29.3086 | 0.8046 | 29.5293 @ 6k |
+| D ExpLog SPAB 3 | 2.5e-4 | 29.6211 | 0.8190 | 29.6211 @ 10k |
+| D ExpLog SPAB 3 | 3.5e-4 | **29.7528** | 0.8214 | **29.7528 @ 10k** |
+
+At 5e-4, D peaks at 6k and degrades afterward. Lowering the learning rate
+improves late-stage stability; 3.5e-4 is the selected D setting. Against C at
+10k it gains 0.0932 dB PSNR and trails by 0.0006 SSIM. Comparing each run's
+best PSNR, the advantage is only 0.0156 dB. This is too small for a final
+superiority claim from one seed.
+
+Next, keep A at 5e-4, C at 5e-4, and D at 3.5e-4 and add seeds 20 and 30.
+Use the 10k final checkpoint as the primary comparison for every method and
+report mean plus standard deviation. Do not mix one method's best checkpoint
+with another method's final checkpoint.
+
+The original A seed-10 run saved checkpoints every 5,000 iterations, whereas
+C and D saved every 2,000. The committed stage configurations preserve that
+historical detail. New seed-20/30 runs should save every 2,000 iterations.

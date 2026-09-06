@@ -17,9 +17,33 @@ VARIANTS = {
     'F_explog_all': {'type': 'SPANExpLog', 'enhance_blocks': [1, 2, 3, 4, 5, 6], 'enhancer': 'explog'},
 }
 
+SCREENING_10K = {
+    # A was run before checkpoint frequency was aligned with validation.
+    'train_A_baseline_x4_10k.yml': ('round2_A_baseline_x4_10k', 'A_baseline', 5e-4, 5000),
+    'train_C_matched_b3_x4_10k.yml': ('round2_C_matched_b3_x4_10k', 'C_matched_b3', 5e-4, 2000),
+    'train_D_explog_b3_x4_10k.yml': ('round2_D_explog_b3_x4_10k', 'D_explog_b3', 5e-4, 2000),
+    'train_D_explog_b3_x4_10k_lr2p5e4.yml': ('round3_D_explog_b3_x4_10k_lr2p5e4', 'D_explog_b3', 2.5e-4, 2000),
+    'train_D_explog_b3_x4_10k_lr3p5e4.yml': ('round3_D_explog_b3_x4_10k_lr3p5e4', 'D_explog_b3', 3.5e-4, 2000),
+}
+
 
 def posix(path):
     return Path(path).as_posix()
+
+
+def make_config(template, label, dataset_root):
+    config = copy.deepcopy(template)
+    changes = VARIANTS[label]
+    config['datasets']['train']['dataroot_gt'] = f'{posix(dataset_root)}/DIV2K/DIV2K_train_HR'
+    config['datasets']['train']['dataroot_lq'] = f'{posix(dataset_root)}/DIV2K/DIV2K_train_LR_bicubic/X4'
+    config['datasets']['val']['dataroot_gt'] = f'{posix(dataset_root)}/DIV2K/DIV2K_valid_HR'
+    config['datasets']['val']['dataroot_lq'] = f'{posix(dataset_root)}/DIV2K/DIV2K_valid_LR_bicubic/X4'
+    config['network_g'].update(changes)
+    if changes['type'] == 'SPAN':
+        for key in ('enhance_blocks', 'enhancer', 'explog_groups', 'explog_alpha'):
+            config['network_g'].pop(key, None)
+    config['train']['ema_decay'] = 0
+    return config
 
 
 def main():
@@ -43,26 +67,30 @@ def main():
 
     with Path('options/experiments/train_SPAN_ExpLog_x4_template.yml').open(encoding='utf-8') as handle:
         template = yaml.safe_load(handle)
-    for label, changes in VARIANTS.items():
-        config = copy.deepcopy(template)
+    for label in VARIANTS:
+        config = make_config(template, label, args.dataset_root)
         config['name'] = f'smoke_{label}_x4'
-        config['datasets']['train']['dataroot_gt'] = f'{posix(args.dataset_root)}/DIV2K/DIV2K_train_HR'
-        config['datasets']['train']['dataroot_lq'] = f'{posix(args.dataset_root)}/DIV2K/DIV2K_train_LR_bicubic/X4'
-        config['datasets']['val']['dataroot_gt'] = f'{posix(args.dataset_root)}/DIV2K/DIV2K_valid_HR'
-        config['datasets']['val']['dataroot_lq'] = f'{posix(args.dataset_root)}/DIV2K/DIV2K_valid_LR_bicubic/X4'
-        config['network_g'].update(changes)
-        if changes['type'] == 'SPAN':
-            for key in ('enhance_blocks', 'enhancer', 'explog_groups', 'explog_alpha'):
-                config['network_g'].pop(key, None)
         config['train']['total_iter'] = args.smoke_iters
         # Short smoke runs must validate the current net_g. EMA=0.999 lags far
         # behind at 1,000 iterations and produced misleadingly low metrics.
-        config['train']['ema_decay'] = 0
         config['val']['val_freq'] = max(1, args.smoke_iters // 2)
         config['logger']['save_checkpoint_freq'] = max(1, args.smoke_iters // 2)
         with (option_dir / f'train_{label}_x4_smoke.yml').open('w', encoding='utf-8') as handle:
             yaml.safe_dump(config, handle, sort_keys=False, allow_unicode=True)
-    print(f'Generated baseline test and {len(VARIANTS)} smoke-training configs in {option_dir}')
+
+    for filename, (name, label, learning_rate, checkpoint_frequency) in SCREENING_10K.items():
+        config = make_config(template, label, args.dataset_root)
+        config['name'] = name
+        config['train']['optim_g']['lr'] = learning_rate
+        config['train']['total_iter'] = 10000
+        config['val']['val_freq'] = 2000
+        config['logger']['save_checkpoint_freq'] = checkpoint_frequency
+        with (option_dir / filename).open('w', encoding='utf-8') as handle:
+            yaml.safe_dump(config, handle, sort_keys=False, allow_unicode=True)
+    print(
+        f'Generated baseline test, {len(VARIANTS)} smoke configs, and '
+        f'{len(SCREENING_10K)} validated 10k configs in {option_dir}'
+    )
 
 
 if __name__ == '__main__':
