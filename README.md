@@ -58,3 +58,12 @@ Current status (2026-09-05):
 - Windows-validated progress is tracked in Git; datasets, checkpoints, and logs remain local.
 
 See `SPAN-ExpLog/EXPERIMENT_STATUS.md` and `SPAN-ExpLog/WINDOWS_RUNBOOK.md`.
+
+## Current follow-up: natural-image denoising
+
+The standalone `Natural-Denoising/` package has now completed its first Windows
+screening run: SCGN and RAMiT baseline/matched/ExpLog, seed 10, 10k steps, evaluated
+on Set12 at noise levels 15/25/50. ExpLog beats the parameter-matched control in
+PSNR on both backbones at all three noise levels, although SCGN at noise 50 is
+effectively tied and has slightly lower SSIM. These are single-seed screening
+results, not a final or SOTA claim. See `Natural-Denoising/EXPERIMENT_RESULTS.md`.

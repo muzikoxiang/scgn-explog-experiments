@@ -1,0 +1,4 @@
+numpy>=1.26,<3
+Pillow>=10,<13
+einops>=0.7,<1
+scikit-image>=0.22,<1

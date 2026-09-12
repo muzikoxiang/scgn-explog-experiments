@@ -1,0 +1,10 @@
+{
+  "train_roots": ["D:/datasets/denoising/train_clean"],
+  "steps": 10000,
+  "patch": 64,
+  "batch": 4,
+  "lr": 0.0002,
+  "min_lr": 0.000001,
+  "save_every": 1000,
+  "log_every": 50
+}
